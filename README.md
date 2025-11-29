@@ -1,9 +1,22 @@
 # mini_encrypted_chat
-A small encrypted chat app running on **localhost**, built with:
+A small encrypted chat app running on **localhost**, built with Go.
 
-* ECDH key exchange (Curve25519)
-* AES-GCM encryption
-* TCP sockets
+It demonstrates how to create a secure communication channel using ECDH key exchange, AES-GCM encryption, and TCP sockets.
+
+---
+
+## ** Overview**
+
+This project shows how two programs (server & client) can:
+* Exchange public keys (ECDH)
+* Derive the same shared secret
+* Convert that secret into an AES key
+* Encrypt every message using AES-GCM
+* Chat securely over TCP
+
+You can also watch the encrypted traffic using Wireshark.
+
+---
 
 ## ** How it works (in simple words)**
 
@@ -15,39 +28,63 @@ A small encrypted chat app running on **localhost**, built with:
 6. Every message is encrypted with AES-GCM
 7. Chat securely🧩
 
-## ** How to run**
-    ### 1. Start server
+---
 
-    ```
-    go run .
-    Mode: server
-    ```
+## ** Installation / Setup**
 
-    ### 2. Start client (open another terminal)
+1. Install Go
 
-    ```
-    go run .
-    Mode: client
-    ```
+   ```
+   https://go.dev/dl/
+   ```
 
-    Once connected, you can type messages on both ends.
+2. Clone the project folder from Git
 
-    Type **exit** to quit (on either side).
+3. Open the project directory:
 
-## **📁 Files**
+   ```
+   cd mini_encrypted_chat
+   ```
+4. Create each file, work on them.
+5. Run the whole project:
 
-main.go      # lets you choose server/client mode
-server.go    # server logic
-client.go    # client logic
-crypto.go    # ECDH + AES-GCM functions
+   ```
+   go run .
+   ```
 
-## ** Monitoring the traffic (Wireshark)**
+---
 
-If you want to see the encrypted packets, open Wireshark and capture on `localhost`:
+## ** Usage**
 
-Filter: *tcp.port == 9000*
+### **Start the server**
 
-You’ll see the messages going through, but the contents will be unreadable because everything is encrypted.
+```
+go run .
+Mode: server
+```
+
+Server will listen on `localhost:9000`.
+
+### **Start the client (in another terminal)**
+
+```
+go run .
+Mode: client
+```
+
+Now both sides can chat securely.
+
+### **Exit**
+
+Type:
+
+```
+exit
+```
+
+to close the connection.
+
+---
 
 ## ** What’s happening under the hood**
 
@@ -58,15 +95,89 @@ You’ll see the messages going through, but the contents will be unreadable bec
 
 Nothing fancy, just enough to understand secure communication zzZZZ.
 
+---
 
-## ** Why this project exists**
+## ** Monitor Encrypted Traffic (Optional)**
 
-To show how encryption works in real-time chat without libraries doing everything for you.
-Good practice for:
+If you want to see encrypted packets in Wireshark:
 
-* Go networking
-* Cryptography basics
-* Secure key exchange
-* AES-GCM usage
+Filter:
+
+```
+tcp.port == 9000
+```
+
+You’ll see the packets, but the contents will be unreadable because of AES-GCM.
+
+---
+
+## ** Dependencies / Libraries Used**
+
+All dependencies are standard Go modules + one crypto library:
+
+* `net` — TCP sockets
+* `crypto/aes` — AES block cipher
+* `crypto/cipher` — GCM mode
+* `crypto/rand` — secure randomness
+* `crypto/sha256` — key derivation
+* `golang.org/x/crypto/curve25519` — ECDH (Curve25519 key exchange)
+
+Install the curve library (if missing):
+
+```
+go get golang.org/x/crypto/curve25519
+```
+---
+
+## ** Files**
+
+main.go      # lets you choose server/client mode
+server.go    # server logic
+client.go    # client logic
+crypto.go    # ECDH + AES-GCM functions
+
+---
+
+## ** Security Practices in This Project**
+
+This project follows basic encryption best practices:
+
+### **1. ECDH (Curve25519) Key Exchange**
+
+* Both client and server generate random 32-byte private keys
+* Public keys exchanged over TCP
+* Shared secret is generated securely
+
+### **2. AES-GCM Encryption**
+
+* AES-256 key (`32 bytes`) derived from SHA-256(shared_secret)
+* Each message uses a fresh random nonce
+* GCM ensures:
+
+  * Confidentiality (encrypted)
+  * Integrity (tamper-protected)
+  * Authentication (no forgery)
+
+### **3. Secure Randomness**
+
+* All private keys and nonces come from `crypto/rand`
+
+### **4. Length-Prefixed Messages**
+
+* Prevents partial reads and misaligned packets
+
+---
+
+### **Note**
+
+This is a learning project — not production-grade.
+Real-world systems require:
+
+* Mutual authentication
+* Identity verification
+* Replay protection
+* Secure key rotation
+* TLS or Noise Protocol
+  …but this project could be a starting point.
 
 ======== See you on Presentation Day លោកគ្រូ🙏🏼🙏🏼 ========
